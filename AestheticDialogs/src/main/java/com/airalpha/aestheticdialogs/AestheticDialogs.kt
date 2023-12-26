@@ -48,46 +48,43 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
-class AestheticDialogs(
-    val dialogStyle: DialogStyle,
-    val dialogType: DialogType
-) {
-    var title = "Title"
-    var message = "Message"
+class AestheticDialogs {
+    class Builder(
+        //Necessary parameters
+        val dialogStyle: DialogStyle,
+        val dialogType: DialogType
+    ) {
+        var title = "Title"
+        var message = "Message"
 
+        /**
+         * Set dialog title text
+         *
+         * @param title
+         * @return this, for chaining.
+         */
+        fun setTitle(title: String) = apply {
+            this.title = title
+        }
 
-    /**
-     * Set dialog title text
-     *
-     * @param title
-     * @return this, for chaining.
-     */
-    fun setTitle(title: String): AestheticDialogs {
-        this.title = title
-        return this
-    }
+        /**
+         * Set dialog message text
+         *
+         * @param message
+         * @return this, for chaining.
+         */
+        fun setMessage(message: String) = apply {
+            this.message = message
+        }
 
-    /**
-     * Set dialog message text
-     *
-     * @param message
-     * @return this, for chaining.
-     */
-    fun setMessage(message: String): AestheticDialogs {
-        this.message = message
-        return this
-    }
-
-    fun show() {
-        AestheticDialogManager.showDialog(this)
+        fun show() {
+            AestheticDialogManager.showDialog(this)
+        }
     }
 }
 
 @Composable
 fun AestheticDialogsComponent() {
-    val scope = rememberCoroutineScope()
-    var visible by remember { mutableStateOf(true) }
-
     AestheticDialogManager.dialogs.forEach {
         when (it.dialogStyle) {
             DialogStyle.RAINBOW -> {
@@ -105,7 +102,7 @@ fun AestheticDialogsComponent() {
 }
 
 @Composable
-fun RainBowDialog(dialog: AestheticDialogs, onDismissRequest: () -> Unit) {
+fun RainBowDialog(dialog: AestheticDialogs.Builder, onDismissRequest: () -> Unit) {
     Dialog(
         onDismissRequest = {
             onDismissRequest()
@@ -116,7 +113,7 @@ fun RainBowDialog(dialog: AestheticDialogs, onDismissRequest: () -> Unit) {
         )
     ) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.TopCenter
         ) {
             Row(
@@ -142,7 +139,14 @@ fun RainBowDialog(dialog: AestheticDialogs, onDismissRequest: () -> Unit) {
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_check_circle_green_24dp),
+                        painter = painterResource(
+                            id = when (dialog.dialogType) {
+                                DialogType.SUCCESS -> R.drawable.ic_check_circle_green_24dp
+                                DialogType.ERROR -> R.drawable.ic_error_red_24dp
+                                DialogType.WARNING -> R.drawable.ic_warning_orange_24dp
+                                DialogType.INFO -> R.drawable.ic_info_blue_24dp
+                            }
+                        ),
                         contentDescription = "Success",
                         modifier = Modifier.size(30.dp),
                         tint = colorResource(id = R.color.md_white_1000)

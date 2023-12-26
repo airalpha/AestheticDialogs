@@ -24,39 +24,48 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val errorMessage = "A failure occurred during registration"
+            val successMessage = "The message was sent successfully !"
+            val warningMessage = "Please verify that you have completed all fields"
+            val infoMessage = "Your request has been updated"
+            val infoTitle = "Info"
+            val successTitle = "Success"
+            val errorTitle = "Error"
+            val warningTitle = "Warning"
+
             AestheticDialogsTheme {
                 // A surface container using the 'background' color from the theme
                 Column(
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     Button(onClick = {
-                        AestheticDialogs(DialogStyle.RAINBOW, DialogType.SUCCESS)
-                            .setTitle("Rainbow")
-                            .setMessage("This is a rainbow dialog !")
+                        AestheticDialogs.Builder(DialogStyle.RAINBOW, DialogType.SUCCESS)
+                            .setTitle(successTitle)
+                            .setMessage(successMessage)
                             .show()
                     }) {
                         Text(text = "Success")
                     }
                     Button(onClick = {
-                        AestheticDialogs(DialogStyle.RAINBOW, DialogType.ERROR)
-                            .setTitle("Rainbow")
-                            .setMessage("This is a rainbow dialog !")
+                        AestheticDialogs.Builder(DialogStyle.RAINBOW, DialogType.ERROR)
+                            .setTitle(errorTitle)
+                            .setMessage(errorMessage)
                             .show()
                     }) {
                         Text(text = "Error")
                     }
                     Button(onClick = {
-                        AestheticDialogs(DialogStyle.RAINBOW, DialogType.WARNING)
-                            .setTitle("Rainbow")
-                            .setMessage("This is a rainbow dialog !")
+                        AestheticDialogs.Builder(DialogStyle.RAINBOW, DialogType.WARNING)
+                            .setTitle(warningTitle)
+                            .setMessage(warningMessage)
                             .show()
                     }) {
                         Text(text = "Warning")
                     }
                     Button(onClick = {
-                        AestheticDialogs(DialogStyle.RAINBOW, DialogType.INFO)
-                            .setTitle("Rainbow")
-                            .setMessage("This is a rainbow dialog !")
+                        AestheticDialogs.Builder(DialogStyle.RAINBOW, DialogType.INFO)
+                            .setTitle(infoTitle)
+                            .setMessage(infoMessage)
                             .show()
                     }) {
                         Text(text = "Info")

@@ -6,9 +6,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 
 object AestheticDialogManager {
-    val dialogs = mutableStateListOf<AestheticDialogs>()
+    val dialogs = mutableStateListOf<AestheticDialogs.Builder>()
 
-    fun showDialog(dialog: AestheticDialogs) {
+    fun showDialog(dialog: AestheticDialogs.Builder) {
         dialogs.add(dialog)
     }
 }
