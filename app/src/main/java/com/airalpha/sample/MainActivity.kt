@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     Button(onClick = {
-                        AestheticDialogs.Builder(DialogStyle.RAINBOW, DialogType.SUCCESS)
+                        AestheticDialogs.Builder(DialogStyle.TOASTER, DialogType.SUCCESS)
                             .setTitle(successTitle)
                             .setMessage(successMessage)
                             .setAnimation(DialogAnimation.SLIDE)
@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
                         Text(text = "Success")
                     }
                     Button(onClick = {
-                        AestheticDialogs.Builder(DialogStyle.RAINBOW, DialogType.ERROR)
+                        AestheticDialogs.Builder(DialogStyle.TOASTER, DialogType.ERROR)
                             .setTitle(errorTitle)
                             .setMessage(errorMessage)
                             .setAnimation(DialogAnimation.EXPAND_UP)

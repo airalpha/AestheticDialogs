@@ -52,6 +52,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 import com.airalpha.aestheticdialogs.dialogs.RainBowDialog
+import com.airalpha.aestheticdialogs.dialogs.ToasterDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -139,6 +140,11 @@ fun AestheticDialogsComponent() {
             when (it.dialogStyle) {
                 DialogStyle.RAINBOW -> {
                     RainBowDialog(it) {
+                        close()
+                    }
+                }
+                DialogStyle.TOASTER -> {
+                    ToasterDialog(it) {
                         close()
                     }
                 }
