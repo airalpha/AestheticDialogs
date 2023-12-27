@@ -1,11 +1,22 @@
 package com.airalpha.aestheticdialogs
 
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.view.Gravity
+import androidx.annotation.GravityInt
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -33,6 +44,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,8 +56,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -56,6 +72,13 @@ class AestheticDialogs {
     ) {
         var title = "Title"
         var message = "Message"
+
+        // Optional parameters
+        var duration: Long = 0
+
+        @GravityInt
+        var gravity: Int = Gravity.NO_GRAVITY
+
 
         /**
          * Set dialog title text
@@ -77,8 +100,35 @@ class AestheticDialogs {
             this.message = message
         }
 
+        /**
+         * Set dialog duration
+         *
+         * @param duration
+         * @return this, for chaining.
+         */
+        fun setDuration(duration: Long) = apply {
+            this.duration = duration
+            Handler(Looper.getMainLooper()).postDelayed({
+                this.close()
+            }, duration)
+        }
+
+        /**
+         * Set dialog gravity
+         *
+         * @param gravity
+         * @return this, for chaining.
+         */
+        fun setGravity(@GravityInt gravity: Int) = apply {
+            this.gravity = gravity
+        }
+
         fun show() {
             AestheticDialogManager.showDialog(this)
+        }
+
+        fun close() {
+            AestheticDialogManager.closeDialog(this)
         }
     }
 }
@@ -88,9 +138,7 @@ fun AestheticDialogsComponent() {
     AestheticDialogManager.dialogs.forEach {
         when (it.dialogStyle) {
             DialogStyle.RAINBOW -> {
-                RainBowDialog(it, onDismissRequest = {
-                    AestheticDialogManager.dialogs.remove(it)
-                })
+                RainBowDialog(it, onDismissRequest = { it.close() })
             }
 
             else -> {
@@ -103,78 +151,110 @@ fun AestheticDialogsComponent() {
 
 @Composable
 fun RainBowDialog(dialog: AestheticDialogs.Builder, onDismissRequest: () -> Unit) {
+    val scope = rememberCoroutineScope()
+    val isVisible = remember { mutableStateOf(false) }
+    LaunchedEffect(key1 = true) {
+        isVisible.value = true
+    }
+
     Dialog(
         onDismissRequest = {
-            onDismissRequest()
+            scope.launch {
+                isVisible.value = false
+                delay(300)
+                onDismissRequest()
+            }
         },
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
             dismissOnClickOutside = true
         )
     ) {
-        Box(
-            modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.TopCenter
+        val dialogWindowProvider = LocalView.current.parent as DialogWindowProvider
+        dialogWindowProvider.window.setGravity(dialog.gravity)
+
+        AnimatedVisibility(
+            visible = isVisible.value,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            DialogContent(dialog) {
+                scope.launch {
+                    isVisible.value = false
+                    delay(300)
+                    onDismissRequest()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DialogContent(dialog: AestheticDialogs.Builder, onClose: () -> Unit) {
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .fillMaxWidth()
+                .height(100.dp)
+                .background(
+                    color = when (dialog.dialogType) {
+                        DialogType.SUCCESS -> colorResource(id = R.color.dialog_success)
+                        DialogType.ERROR -> colorResource(id = R.color.dialog_error)
+                        DialogType.WARNING -> colorResource(id = R.color.dialog_warning)
+                        DialogType.INFO -> colorResource(id = R.color.dialog_info)
+                    }
+                )
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .fillMaxWidth()
-                    .height(100.dp)
-                    .background(
-                        color = when (dialog.dialogType) {
-                            DialogType.SUCCESS -> colorResource(id = R.color.dialog_success)
-                            DialogType.ERROR -> colorResource(id = R.color.dialog_error)
-                            DialogType.WARNING -> colorResource(id = R.color.dialog_warning)
-                            DialogType.INFO -> colorResource(id = R.color.dialog_info)
-                        }
-                    )
-                    .padding(16.dp),
+                modifier = Modifier.weight(.3f),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Row(
-                    modifier = Modifier.weight(.3f),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(
-                            id = when (dialog.dialogType) {
-                                DialogType.SUCCESS -> R.drawable.ic_check_circle_green_24dp
-                                DialogType.ERROR -> R.drawable.ic_error_red_24dp
-                                DialogType.WARNING -> R.drawable.ic_warning_orange_24dp
-                                DialogType.INFO -> R.drawable.ic_info_blue_24dp
-                            }
-                        ),
-                        contentDescription = "Success",
-                        modifier = Modifier.size(30.dp),
-                        tint = colorResource(id = R.color.md_white_1000)
+                Icon(
+                    painter = painterResource(
+                        id = when (dialog.dialogType) {
+                            DialogType.SUCCESS -> R.drawable.ic_check_circle_green_24dp
+                            DialogType.ERROR -> R.drawable.ic_error_red_24dp
+                            DialogType.WARNING -> R.drawable.ic_warning_orange_24dp
+                            DialogType.INFO -> R.drawable.ic_info_blue_24dp
+                        }
+                    ),
+                    contentDescription = "Success",
+                    modifier = Modifier.size(30.dp),
+                    tint = colorResource(id = R.color.md_white_1000)
+                )
+                Column {
+                    Text(
+                        text = dialog.title,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = colorResource(id = R.color.md_white_1000)
                     )
-                    Column {
-                        Text(
-                            text = dialog.title,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = colorResource(id = R.color.md_white_1000)
-                        )
-                        Text(
-                            text = dialog.message,
-                            fontSize = 14.sp,
-                            maxLines = 2,
-                            lineHeight = 18.sp,
-                            color = colorResource(id = R.color.md_white_1000)
-                        )
-                    }
-                }
-                IconButton(onClick = { onDismissRequest() }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_close_gray_24dp),
-                        contentDescription = "Close",
-                        modifier = Modifier.size(30.dp),
-                        tint = colorResource(id = R.color.md_white_1000)
+                    Text(
+                        text = dialog.message,
+                        fontSize = 14.sp,
+                        maxLines = 2,
+                        lineHeight = 18.sp,
+                        color = colorResource(id = R.color.md_white_1000)
                     )
                 }
+            }
+            IconButton(onClick = {
+                onClose()
+            }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_close_gray_24dp),
+                    contentDescription = "Close",
+                    modifier = Modifier.size(30.dp),
+                    tint = colorResource(id = R.color.md_white_1000)
+                )
             }
         }
     }

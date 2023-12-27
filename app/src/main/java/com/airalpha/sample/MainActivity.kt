@@ -2,6 +2,7 @@ package com.airalpha.sample
 
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -42,6 +43,7 @@ class MainActivity : ComponentActivity() {
                         AestheticDialogs.Builder(DialogStyle.RAINBOW, DialogType.SUCCESS)
                             .setTitle(successTitle)
                             .setMessage(successMessage)
+                            .setGravity(Gravity.TOP)
                             .show()
                     }) {
                         Text(text = "Success")
