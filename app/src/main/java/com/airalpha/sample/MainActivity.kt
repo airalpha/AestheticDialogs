@@ -42,6 +42,7 @@ import com.airalpha.sample.Constants.successTitle
 import com.airalpha.sample.Constants.warningMessage
 import com.airalpha.sample.Constants.warningTitle
 import com.airalpha.sample.components.CustomButton
+import com.airalpha.sample.components.RainbowDemo
 import com.airalpha.sample.components.ToasterDemo
 import com.airalpha.sample.ui.theme.AestheticDialogsTheme
 import java.time.format.TextStyle
@@ -76,6 +77,7 @@ class MainActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         ToasterDemo()
+                        RainbowDemo()
                     }
                 }
 
