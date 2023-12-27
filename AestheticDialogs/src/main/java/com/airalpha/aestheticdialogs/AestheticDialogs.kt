@@ -2,66 +2,57 @@ package com.airalpha.aestheticdialogs
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.Gravity
 import androidx.annotation.GravityInt
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.expandIn
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.shrinkOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOut
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.airalpha.aestheticdialogs.dialogs.RainBowDialog
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 class AestheticDialogs {
@@ -74,10 +65,11 @@ class AestheticDialogs {
         var message = "Message"
 
         // Optional parameters
-        var duration: Long = 0
+        var duration: Long? = null
 
         @GravityInt
         var gravity: Int = Gravity.NO_GRAVITY
+        var animation: DialogAnimation = DialogAnimation.DEFAULT
 
 
         /**
@@ -108,9 +100,6 @@ class AestheticDialogs {
          */
         fun setDuration(duration: Long) = apply {
             this.duration = duration
-            Handler(Looper.getMainLooper()).postDelayed({
-                this.close()
-            }, duration)
         }
 
         /**
@@ -123,26 +112,40 @@ class AestheticDialogs {
             this.gravity = gravity
         }
 
+        /**
+         * Set dialog animation
+         *
+         * @param animation
+         * @return this, for chaining.
+         */
+        fun setAnimation(animation: DialogAnimation) = apply {
+            this.animation = animation
+        }
+
         fun show() {
-            AestheticDialogManager.showDialog(this)
+            AestheticDialogsManager.showDialog(this)
         }
 
         fun close() {
-            AestheticDialogManager.closeDialog(this)
+            AestheticDialogsManager.closeDialog(this)
         }
     }
 }
 
 @Composable
 fun AestheticDialogsComponent() {
-    AestheticDialogManager.dialogs.forEach {
-        when (it.dialogStyle) {
-            DialogStyle.RAINBOW -> {
-                RainBowDialog(it, onDismissRequest = { it.close() })
-            }
+    AestheticDialogsManager.dialogs.forEach {
+        DialogWrapper(dialog = it, onDismissRequest = { it.close() }) { close ->
+            when (it.dialogStyle) {
+                DialogStyle.RAINBOW -> {
+                    RainBowDialog(it) {
+                        close()
+                    }
+                }
 
-            else -> {
+                else -> {
 
+                }
             }
         }
 
@@ -150,20 +153,34 @@ fun AestheticDialogsComponent() {
 }
 
 @Composable
-fun RainBowDialog(dialog: AestheticDialogs.Builder, onDismissRequest: () -> Unit) {
+fun DialogWrapper(
+    dialog: AestheticDialogs.Builder,
+    onDismissRequest: () -> Unit,
+    content: @Composable (() -> Unit) -> Unit
+) {
     val scope = rememberCoroutineScope()
     val isVisible = remember { mutableStateOf(false) }
+
+    fun closeDialog() {
+        scope.launch {
+            isVisible.value = false
+            delay(300)
+            onDismissRequest()
+        }
+    }
+
     LaunchedEffect(key1 = true) {
         isVisible.value = true
+        if (dialog.duration != null) {
+            Handler(Looper.getMainLooper()).postDelayed({
+                closeDialog()
+            }, dialog.duration!!)
+        }
     }
 
     Dialog(
         onDismissRequest = {
-            scope.launch {
-                isVisible.value = false
-                delay(300)
-                onDismissRequest()
-            }
+            closeDialog()
         },
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
@@ -175,86 +192,39 @@ fun RainBowDialog(dialog: AestheticDialogs.Builder, onDismissRequest: () -> Unit
 
         AnimatedVisibility(
             visible = isVisible.value,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            DialogContent(dialog) {
-                scope.launch {
-                    isVisible.value = false
-                    delay(300)
-                    onDismissRequest()
-                }
+            enter = when (dialog.animation) {
+                DialogAnimation.DEFAULT -> fadeIn()
+                DialogAnimation.FADE -> fadeIn(initialAlpha = 0.3f)
+                DialogAnimation.SLIDE -> slideIn(initialOffset = { IntOffset(it.width, it.height) })
+                DialogAnimation.SLIDE_UP -> slideInVertically(initialOffsetY = {it*2})
+                DialogAnimation.SLIDE_DOWN -> slideInVertically(initialOffsetY = {-it*2})
+                DialogAnimation.SLIDE_LEFT -> slideInHorizontally(initialOffsetX = {-it*2})
+                DialogAnimation.SLIDE_RIGHT -> slideInHorizontally(initialOffsetX = {it*2})
+                DialogAnimation.EXPAND -> expandIn()
+                DialogAnimation.EXPAND_UP -> expandVertically(initialHeight = {it*2})
+                DialogAnimation.EXPAND_DOWN -> expandVertically(initialHeight = {-it*2})
+                DialogAnimation.EXPAND_LEFT -> expandHorizontally(initialWidth = {-it*2})
+                DialogAnimation.EXPAND_RIGHT -> expandHorizontally(initialWidth = {it*2})
+                DialogAnimation.SCALE -> scaleIn()
+            },
+            exit = when (dialog.animation) {
+                DialogAnimation.DEFAULT -> fadeOut()
+                DialogAnimation.FADE -> fadeOut(targetAlpha = 0.3f)
+                DialogAnimation.SLIDE -> slideOut(targetOffset = { IntOffset(it.width, it.height) })
+                DialogAnimation.SLIDE_UP -> slideOutVertically(targetOffsetY = {it*2})
+                DialogAnimation.SLIDE_DOWN -> slideOutVertically(targetOffsetY = {-it*2})
+                DialogAnimation.SLIDE_LEFT -> slideOutHorizontally(targetOffsetX = {-it*2})
+                DialogAnimation.SLIDE_RIGHT -> slideOutHorizontally(targetOffsetX = {it*2})
+                DialogAnimation.EXPAND -> shrinkOut()
+                DialogAnimation.EXPAND_UP -> shrinkVertically(targetHeight = {it*2})
+                DialogAnimation.EXPAND_DOWN -> shrinkVertically(targetHeight = {-it*2})
+                DialogAnimation.EXPAND_LEFT -> shrinkHorizontally(targetWidth = {-it*2})
+                DialogAnimation.EXPAND_RIGHT -> shrinkHorizontally(targetWidth = {-it*2})
+                DialogAnimation.SCALE -> scaleOut()
             }
-        }
-    }
-}
-
-@Composable
-fun DialogContent(dialog: AestheticDialogs.Builder, onClose: () -> Unit) {
-    Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.TopCenter
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 8.dp)
-                .fillMaxWidth()
-                .height(100.dp)
-                .background(
-                    color = when (dialog.dialogType) {
-                        DialogType.SUCCESS -> colorResource(id = R.color.dialog_success)
-                        DialogType.ERROR -> colorResource(id = R.color.dialog_error)
-                        DialogType.WARNING -> colorResource(id = R.color.dialog_warning)
-                        DialogType.INFO -> colorResource(id = R.color.dialog_info)
-                    }
-                )
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(
-                modifier = Modifier.weight(.3f),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Icon(
-                    painter = painterResource(
-                        id = when (dialog.dialogType) {
-                            DialogType.SUCCESS -> R.drawable.ic_check_circle_green_24dp
-                            DialogType.ERROR -> R.drawable.ic_error_red_24dp
-                            DialogType.WARNING -> R.drawable.ic_warning_orange_24dp
-                            DialogType.INFO -> R.drawable.ic_info_blue_24dp
-                        }
-                    ),
-                    contentDescription = "Success",
-                    modifier = Modifier.size(30.dp),
-                    tint = colorResource(id = R.color.md_white_1000)
-                )
-                Column {
-                    Text(
-                        text = dialog.title,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = colorResource(id = R.color.md_white_1000)
-                    )
-                    Text(
-                        text = dialog.message,
-                        fontSize = 14.sp,
-                        maxLines = 2,
-                        lineHeight = 18.sp,
-                        color = colorResource(id = R.color.md_white_1000)
-                    )
-                }
-            }
-            IconButton(onClick = {
-                onClose()
-            }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_close_gray_24dp),
-                    contentDescription = "Close",
-                    modifier = Modifier.size(30.dp),
-                    tint = colorResource(id = R.color.md_white_1000)
-                )
+            content {
+                closeDialog()
             }
         }
     }
