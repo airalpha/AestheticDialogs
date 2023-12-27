@@ -192,36 +192,8 @@ fun DialogWrapper(
 
         AnimatedVisibility(
             visible = isVisible.value,
-            enter = when (dialog.animation) {
-                DialogAnimation.DEFAULT -> fadeIn()
-                DialogAnimation.FADE -> fadeIn(initialAlpha = 0.3f)
-                DialogAnimation.SLIDE -> slideIn(initialOffset = { IntOffset(it.width, it.height) })
-                DialogAnimation.SLIDE_UP -> slideInVertically(initialOffsetY = {it*2})
-                DialogAnimation.SLIDE_DOWN -> slideInVertically(initialOffsetY = {-it*2})
-                DialogAnimation.SLIDE_LEFT -> slideInHorizontally(initialOffsetX = {-it*2})
-                DialogAnimation.SLIDE_RIGHT -> slideInHorizontally(initialOffsetX = {it*2})
-                DialogAnimation.EXPAND -> expandIn()
-                DialogAnimation.EXPAND_UP -> expandVertically(initialHeight = {it*2})
-                DialogAnimation.EXPAND_DOWN -> expandVertically(initialHeight = {-it*2})
-                DialogAnimation.EXPAND_LEFT -> expandHorizontally(initialWidth = {-it*2})
-                DialogAnimation.EXPAND_RIGHT -> expandHorizontally(initialWidth = {it*2})
-                DialogAnimation.SCALE -> scaleIn()
-            },
-            exit = when (dialog.animation) {
-                DialogAnimation.DEFAULT -> fadeOut()
-                DialogAnimation.FADE -> fadeOut(targetAlpha = 0.3f)
-                DialogAnimation.SLIDE -> slideOut(targetOffset = { IntOffset(it.width, it.height) })
-                DialogAnimation.SLIDE_UP -> slideOutVertically(targetOffsetY = {it*2})
-                DialogAnimation.SLIDE_DOWN -> slideOutVertically(targetOffsetY = {-it*2})
-                DialogAnimation.SLIDE_LEFT -> slideOutHorizontally(targetOffsetX = {-it*2})
-                DialogAnimation.SLIDE_RIGHT -> slideOutHorizontally(targetOffsetX = {it*2})
-                DialogAnimation.EXPAND -> shrinkOut()
-                DialogAnimation.EXPAND_UP -> shrinkVertically(targetHeight = {it*2})
-                DialogAnimation.EXPAND_DOWN -> shrinkVertically(targetHeight = {-it*2})
-                DialogAnimation.EXPAND_LEFT -> shrinkHorizontally(targetWidth = {-it*2})
-                DialogAnimation.EXPAND_RIGHT -> shrinkHorizontally(targetWidth = {-it*2})
-                DialogAnimation.SCALE -> scaleOut()
-            }
+            enter = dialog.animation.enterAnim(),
+            exit = dialog.animation.exitAnim()
         ) {
             content {
                 closeDialog()
