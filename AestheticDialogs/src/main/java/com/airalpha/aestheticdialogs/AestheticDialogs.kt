@@ -69,7 +69,7 @@ class AestheticDialogs {
         var duration: Long? = null
 
         @GravityInt
-        var gravity: Int = Gravity.NO_GRAVITY
+        var gravity: Int = Gravity.TOP
         var animation: DialogAnimation = DialogAnimation.DEFAULT
 
 
