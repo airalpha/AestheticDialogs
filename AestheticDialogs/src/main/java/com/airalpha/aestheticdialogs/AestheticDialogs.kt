@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
+import com.airalpha.aestheticdialogs.dialogs.FlashDialog
 import com.airalpha.aestheticdialogs.dialogs.RainBowDialog
 import com.airalpha.aestheticdialogs.dialogs.ToasterDialog
 import kotlinx.coroutines.delay
@@ -143,8 +144,15 @@ fun AestheticDialogsComponent() {
                         close()
                     }
                 }
+
                 DialogStyle.TOASTER -> {
                     ToasterDialog(it) {
+                        close()
+                    }
+                }
+
+                DialogStyle.FLASH -> {
+                    FlashDialog(it) {
                         close()
                     }
                 }

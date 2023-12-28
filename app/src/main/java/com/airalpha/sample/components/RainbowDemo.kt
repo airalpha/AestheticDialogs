@@ -43,7 +43,7 @@ fun RainbowDemo() {
                 .show()
         }
         CustomButton(title = "WARNING") {
-            AestheticDialogs.Builder(DialogStyle.RAINBOW, DialogType.WARNING)
+            AestheticDialogs.Builder(DialogStyle.FLASH, DialogType.WARNING)
                 .setTitle(Constants.warningTitle)
                 .setMessage(Constants.warningMessage)
                 .show()
