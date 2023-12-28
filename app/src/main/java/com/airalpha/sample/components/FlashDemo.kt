@@ -14,38 +14,26 @@ import com.airalpha.aestheticdialogs.DialogType
 import com.airalpha.sample.Constants
 
 @Composable
-fun RainbowDemo() {
+fun FlashDemo() {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Text(
-            text = "RAINBOW DIALOG",
+            text = "FLASH DIALOG",
             fontWeight = FontWeight.Bold,
             fontStyle = FontStyle.Italic
         )
         CustomButton(title = "SUCCESS") {
-            AestheticDialogs.Builder(DialogStyle.RAINBOW, DialogType.SUCCESS)
+            AestheticDialogs.Builder(DialogStyle.FLASH, DialogType.SUCCESS)
                 .setTitle(Constants.successTitle)
                 .setMessage(Constants.successMessage)
                 .show()
         }
         CustomButton(title = "ERROR") {
-            AestheticDialogs.Builder(DialogStyle.RAINBOW, DialogType.ERROR)
+            AestheticDialogs.Builder(DialogStyle.FLASH, DialogType.ERROR)
                 .setTitle(Constants.errorTitle)
                 .setMessage(Constants.errorMessage)
-                .show()
-        }
-        CustomButton(title = "INFO") {
-            AestheticDialogs.Builder(DialogStyle.RAINBOW, DialogType.INFO)
-                .setTitle(Constants.infoTitle)
-                .setMessage(Constants.infoMessage)
-                .show()
-        }
-        CustomButton(title = "WARNING") {
-            AestheticDialogs.Builder(DialogStyle.RAINBOW, DialogType.WARNING)
-                .setTitle(Constants.warningTitle)
-                .setMessage(Constants.warningMessage)
                 .show()
         }
     }

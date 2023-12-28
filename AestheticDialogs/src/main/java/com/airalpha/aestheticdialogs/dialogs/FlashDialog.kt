@@ -79,15 +79,7 @@ fun FlashDialog(dialog: AestheticDialogs.Builder, onClose: () -> Unit) {
     ) {
         Column(
             modifier = Modifier
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFFFF5FBA),
-                            Color(0xFFFF3159),
-                            Color(0xFFFF4889)
-                        )
-                    )
-                )
+                .background(brush)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -106,7 +98,7 @@ fun FlashDialog(dialog: AestheticDialogs.Builder, onClose: () -> Unit) {
             Text(
                 text = dialog.title,
                 modifier = Modifier
-                    .wrapContentSize(Alignment.Center),
+                    .wrapContentSize(Alignment.Center).padding(horizontal = 10.dp),
                 textAlign = TextAlign.Center,
                 fontSize = 20.sp,
                 color = colorResource(id = R.color.md_white_1000)
@@ -114,7 +106,7 @@ fun FlashDialog(dialog: AestheticDialogs.Builder, onClose: () -> Unit) {
             Spacer(modifier = Modifier.height(10.dp))
             Text(
                 modifier = Modifier
-                    .wrapContentSize(Alignment.Center),
+                    .wrapContentSize(Alignment.Center).padding(horizontal = 10.dp),
                 textAlign = TextAlign.Center,
                 text = dialog.message,
                 fontSize = 16.sp,
