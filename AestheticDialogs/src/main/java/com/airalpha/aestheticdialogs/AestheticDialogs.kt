@@ -22,6 +22,7 @@ import androidx.compose.animation.slideOut
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -68,10 +69,10 @@ class AestheticDialogs {
 
         // Optional parameters
         var duration: Long? = null
-
         @GravityInt
         var gravity: Int = Gravity.TOP
         var animation: DialogAnimation = DialogAnimation.DEFAULT
+        var darkMode: Boolean = false
 
 
         /**
@@ -122,6 +123,16 @@ class AestheticDialogs {
          */
         fun setAnimation(animation: DialogAnimation) = apply {
             this.animation = animation
+        }
+
+        /**
+         * Set dialog darkmode
+         *
+         * @param darkmode
+         * @return this, for chaining.
+         */
+        fun setDarkMode(darkMode: Boolean) = apply {
+            this.darkMode = darkMode
         }
 
         fun show() {

@@ -3,6 +3,7 @@ package com.airalpha.aestheticdialogs.dialogs
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,7 +47,7 @@ fun ToasterDialog(dialog: AestheticDialogs.Builder, onClose: () -> Unit) {
             .fillMaxWidth()
             .height(100.dp)
             .background(
-                color = colorResource(id = R.color.md_white_1000)
+                color = colorResource(id = if (isSystemInDarkTheme().or(dialog.darkMode)) R.color.dark_background else R.color.md_white_1000)
             )
             .drawWithContent {
                 drawContent()
@@ -83,13 +84,14 @@ fun ToasterDialog(dialog: AestheticDialogs.Builder, onClose: () -> Unit) {
                     text = dialog.title,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = colorResource(id = R.color.md_blue_grey_500)
+                    color = if (isSystemInDarkTheme().or(dialog.darkMode)) color else colorResource(id = R.color.md_blue_grey_500)
                 )
                 Text(
                     text = dialog.message,
                     fontSize = 14.sp,
                     maxLines = 2,
-                    lineHeight = 18.sp
+                    lineHeight = 18.sp,
+                    color = if (isSystemInDarkTheme().or(dialog.darkMode)) color else colorResource(id = R.color.md_blue_grey_500)
                 )
             }
         }
