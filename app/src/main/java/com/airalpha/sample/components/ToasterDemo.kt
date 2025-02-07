@@ -1,5 +1,6 @@
 package com.airalpha.sample.components
 
+import android.view.Gravity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
@@ -9,6 +10,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.airalpha.aestheticdialogs.AestheticDialogs
+import com.airalpha.aestheticdialogs.DialogAnimation
 import com.airalpha.aestheticdialogs.DialogStyle
 import com.airalpha.aestheticdialogs.DialogType
 import com.airalpha.sample.Constants
@@ -28,17 +30,22 @@ fun ToasterDemo() {
             AestheticDialogs.Builder(DialogStyle.TOASTER, DialogType.SUCCESS)
                 .setTitle(Constants.successTitle)
                 .setMessage(Constants.successMessage)
+                .setAnimation(DialogAnimation.SCALE)
+                .setGravity(Gravity.BOTTOM)
+                .setDuration(4000)
                 .show()
         }
         CustomButton(title = "ERROR") {
             AestheticDialogs.Builder(DialogStyle.TOASTER, DialogType.ERROR)
                 .setTitle(Constants.errorTitle)
                 .setMessage(Constants.errorMessage)
+                .setAnimation(DialogAnimation.SLIDE)
                 .show()
         }
         CustomButton(title = "INFO") {
             AestheticDialogs.Builder(DialogStyle.TOASTER, DialogType.INFO)
                 .setTitle(Constants.infoTitle)
+                .setAnimation(DialogAnimation.EXPAND)
                 .setMessage(Constants.infoMessage)
                 .show()
         }
@@ -46,6 +53,7 @@ fun ToasterDemo() {
             AestheticDialogs.Builder(DialogStyle.TOASTER, DialogType.WARNING)
                 .setTitle(Constants.warningTitle)
                 .setMessage(Constants.warningMessage)
+                .setAnimation(DialogAnimation.SLIDE_DOWN)
                 .show()
         }
     }
